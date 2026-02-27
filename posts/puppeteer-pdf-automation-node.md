@@ -1,10 +1,14 @@
 ---
-    "title": "Automating PDF Reports with Puppeteer & PDF-lib in Node.js",
-    "excerpt": "Cutting 30% of manual reporting time by building a fully automated document generation pipeline. A deep dive into streaming architecture and Puppeteer gotchas.",
-    "tags": ["Node.js", "Puppeteer", "Automation", "PDF"],
-    "date": "2025-10-03",
-    "featured": false,
-    "coverEmoji": "📄"
+title: "Automating PDF Reports with Puppeteer & PDF-lib in Node.js"
+excerpt: Cutting 30% of manual reporting time by building a fully automated document generation pipeline. A deep dive into streaming architecture and Puppeteer gotchas.
+tags:
+  - Node.js
+  - Puppeteer
+  - Automation
+  - PDF
+date: "2025-10-03"
+featured: false
+coverEmoji: "📄"
 ---
 
 Document generation is one of those tasks that sounds simple until you're handling 12 different report types, dynamic data, and clients who want pixel-perfect PDFs. Here's how I built an automated pipeline that replaced hours of manual work.\n\n## The Problem\n\nAt Codezen Tech Solutions, the team was manually assembling monthly reports in a mix of Excel and Word documents. 12 report types × ~2 hours each = a full day of work every month. My job was to automate all of it.\n\n## Tech Stack Choice\n\n- **Puppeteer** — headless Chrome for HTML → PDF conversion\n- **PDF-lib** — merging, stamping, and manipulating existing PDF templates\n- **PptxGenJS** — generating PowerPoint slides from data\n- **Handlebars** — HTML templating with dynamic data injection\n\n## The Pipeline\n\n```\nData Source (MongoDB)\n  → Handlebars Template (HTML)\n    → Puppeteer (HTML → PDF)\n      → PDF-lib (merge + watermark)\n        → S3 Upload\n          → Email notification\n```\n\n## Puppeteer Tips for Production\n\n**1. Launch once, reuse the browser instance.** Launching a new browser per request is extremely slow.\n\n```js\n// browserPool.js\nlet browser;\nexport const getBrowser = async () => {\n  if (!browser) {\n    browser = await puppeteer.launch({\n      headless: 'new',\n      args: ['--no-sandbox', '--disable-setuid-sandbox'],\n    });\n  }\n  return browser;\n};\n```\n\n**2. Use `waitUntil: 'networkidle0'`** when your HTML loads external fonts or images.\n\n**3. Set explicit viewport** to match your design's expected page width.\n\n## Streaming Large Documents\n\nFor reports with 100+ pages, buffering the entire PDF in memory causes OOM crashes on small servers. Instead, stream the output directly to S3:\n\n```js\nconst stream = await page.createPDFStream({ format: 'A4', printBackground: true });\nawait s3.upload({ Bucket, Key, Body: stream }).promise();\n```\n\n## Results\n\nThe pipeline processes all 12 reports in under 4 minutes, runs on a cron job at midnight, and the team hasn't touched a report manually since deployment. That's the 30% time reduction on paper — in practice it felt like much more.
