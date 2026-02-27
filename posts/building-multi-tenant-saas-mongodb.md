@@ -7,8 +7,6 @@ featured: true
 coverEmoji: "🏗️"
 ---
 
----
-
 ## Multi-Tenancy: The Architectural Decision That Can Make or Break Your SaaS
 
 Multi-tenancy is one of those architectural choices that looks straightforward on paper—but can quietly become a source of data leaks, performance issues, and sleepless nights if done incorrectly.
@@ -16,8 +14,6 @@ Multi-tenancy is one of those architectural choices that looks straightforward o
 When I was building an expense management platform in my previous role, one requirement was non-negotiable: **Company A must never be able to see Company B’s data**—not under heavy load, not due to a buggy query, and not because someone forgot a filter.
 
 This post breaks down what multi-tenancy is, the model I chose, and the practical safeguards that kept tenant isolation airtight in production.
-
----
 
 ## What Is Multi-Tenancy?
 
@@ -32,8 +28,6 @@ The three most common approaches are:
 For this project, I chose the **shared-schema approach**. All tenants lived in the same MongoDB collections, and **every document included a `tenantId` field**.
 
 This model scales well—but only if isolation is enforced rigorously.
-
----
 
 ## Enforcing Tenant Isolation with Middleware
 
@@ -64,8 +58,6 @@ export const tenantMiddleware = (req, res, next) => {
 
 This approach ensures that tenant context is **derived server-side**, never trusted from client input.
 
----
-
 ## Strategic Indexing for Performance and Safety
 
 In a shared-schema model, indexing isn’t just about speed—it’s about **preventing accidental cross-tenant scans**.
@@ -86,8 +78,6 @@ By leading every index with `tenantId`, MongoDB never had to scan documents belo
 
 📈 **Result:** A 65% improvement in cross-tenant query performance in internal benchmarks.
 
----
-
 ## Layering Role-Based Access Control (RBAC)
 
 Tenant isolation alone isn’t enough—you still need authorization *within* a tenant.
@@ -99,8 +89,6 @@ On top of tenant scoping, we implemented a simple but effective 3-tier RBAC mode
 * **Employee**
 
 Each role mapped to a bitmask of permissions stored directly in the JWT payload. Authorization checks were handled by an `authorize(permissions)` middleware factory, keeping route handlers clean and consistent.
-
----
 
 ## Lessons Learned
 
@@ -117,8 +105,6 @@ A few takeaways that proved invaluable:
 
 * **Think carefully about deletes**
   In shared schemas, hard deletes can leave orphaned references. Soft deletes are often safer.
-
----
 
 ## Final Thoughts
 

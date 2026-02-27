@@ -11,15 +11,12 @@ featured: false
 coverEmoji: "📄"
 ---
 
----
 
 ## Automating Document Generation at Scale: From Manual Chaos to a 4-Minute Pipeline
 
 Document generation is one of those tasks that sounds easy—until you’re dealing with a dozen report types, deeply nested data, and stakeholders who expect pixel-perfect PDFs every time.
 
 This is the story of how I built an automated document generation pipeline that eliminated hours of repetitive manual work and turned reporting into a fully hands-off process.
-
----
 
 ## The Problem
 
@@ -33,8 +30,6 @@ The math wasn’t pretty:
 
 Beyond the time cost, the process was error-prone, inconsistent, and impossible to scale. My goal was simple: **automate everything**—from data extraction to delivery—without compromising formatting or accuracy.
 
----
-
 ## Choosing the Right Tech Stack
 
 The solution required flexibility, precision, and production-grade reliability. Here’s what I landed on:
@@ -46,13 +41,11 @@ The solution required flexibility, precision, and production-grade reliability. 
 
 Each tool solved a specific problem in the pipeline without unnecessary overlap.
 
----
-
 ## The End-to-End Pipeline
 
 At a high level, the system looks like this:
 
-```
+``` js
 Data Source (MongoDB)
   → Handlebars Template (HTML)
     → Puppeteer (HTML → PDF)
@@ -62,8 +55,6 @@ Data Source (MongoDB)
 ```
 
 Each step is isolated, testable, and replaceable—making the pipeline easy to extend as new report types are added.
-
----
 
 ## Puppeteer Tips for Production Use
 
@@ -92,7 +83,7 @@ export const getBrowser = async () => {
 
 When loading external fonts, images, or charts, always render PDFs using:
 
-```
+``` js
 waitUntil: 'networkidle0'
 ```
 
@@ -101,8 +92,6 @@ This avoids half-rendered documents and layout shifts.
 ### 3. Set an Explicit Viewport
 
 Matching the viewport to your design’s expected width ensures consistent pagination and alignment across all reports.
-
----
 
 ## Streaming Large PDFs Without Crashing the Server
 
@@ -125,8 +114,6 @@ await s3.upload({
 
 This approach kept memory usage flat, regardless of document size.
 
----
-
 ## Results
 
 * All **12 reports generated in under 4 minutes**
@@ -134,8 +121,6 @@ This approach kept memory usage flat, regardless of document size.
 * Zero manual intervention since deployment
 
 On paper, it saved about **30% of the team’s time**. In reality, it felt like much more—because it eliminated an entire class of tedious, failure-prone work.
-
----
 
 ## Final Takeaway
 
